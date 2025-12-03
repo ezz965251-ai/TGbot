@@ -2,13 +2,13 @@ import telebot
 import hashlib
 from datetime import datetime
 
-# Токен бота
+# токен бота
 bot = telebot.TeleBot('8310431204:AAEXfSgJZLlp-DABnDeZ7VfCWHamFBgSBoc')
 
-# Функция для хэширования пароля
+# функция для хэширования пароля
 def hash_pass(pw: str) -> str:
     return hashlib.sha256(pw.encode()).hexdigest()
-# Белый список: (имя, фамилия) → хэш пароля
+# список: имя фамилия → хэш пароля (пароль)
 AUTHORIZED_USERS = {
     ("Беляев", "Илья"): hash_pass("qwe1"),
     ("Гаврилов", "Дима"): hash_pass("qwe2"),
@@ -31,15 +31,15 @@ AUTHORIZED_USERS = {
     ("Лавров", "Ефим"): hash_pass("l0wr"),
     ("Чемякин", "Вадим"): hash_pass("vad1"),
 }
-# Словарь для отслеживания авторизованных пользователей по chat_id
+# отслеживание  авторизованных пользователей по chat_id
 AUTHORIZED_CHAT_IDS = set()
-# Словарь для хранения состояний пользователей (отзывы и другая информация)
+# хранение состояния пользователей (отзывы и др инф)
 user_states = {}
-# Словарь для хранения результатов опросов
+# хранение результатов опросов
 poll_results = {}
 @bot.message_handler(commands=['start', 'help'])
 def handle_commands(message):
-    # Обработка команд /start и /help
+    # команды /start и /help
     if message.text == '/start':
         start(message)
     elif message.text == '/help':
@@ -82,7 +82,7 @@ def help_cmd(message):
 Если возникли проблемы, обратитесь к администратору (@Ezzglx).
 """
     if message.chat.id in AUTHORIZED_CHAT_IDS:
-        # Для авторизованных пользователей добавляем кнопку главного меню
+        # для авторизованных пользователей кнопка главное меню
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn_menu = telebot.types.KeyboardButton('⬅️ Главное меню')
         markup.add(btn_menu)
@@ -99,11 +99,11 @@ def handle_login(message):
                          "❌ Неверный формат.\nПожалуйста, введите: <b>Имя Фамилия Пароль</b>\n\nИспользуйте /help для справки",
                          parse_mode='html')
         return
-    # Объединяем все части кроме последней как фамилию (на случай двойных фамилий)
+    # объединяем все части кроме последней как фамилию (на случай двойных фамилий)
     first_name = parts[0]
     last_name = ' '.join(parts[1:-1])
     password = parts[-1]
-    # Приводим к нужному регистру
+    # нужный регистр
     first_name = first_name.capitalize()
     last_name = last_name.capitalize()
     user_key = (first_name, last_name)
@@ -155,18 +155,18 @@ def start_canteen_poll(chat_id):
 def update_poll_results(message, poll_id):
     """Обновляет результаты опроса"""
     votes = poll_results.get(poll_id, {})
-    # Считаем результаты
+    # результаты
     results = {'5': 0, '4': 0, '3': 0, '2': 0}
     for vote in votes.values():
         results[vote] += 1
 
     total_votes = len(votes)
-    # Определяем название опроса
+    # название опроса
     poll_names = {
         'canteen': 'Питьевой фонтан'
     }
     poll_name = poll_names.get(poll_id, 'Опрос')
-    # Создаем визуализацию
+    # визуализация
     result_text = f"""
 📊 **Результаты опроса: {poll_name}**
 
@@ -177,7 +177,7 @@ def update_poll_results(message, poll_id):
 
 Всего голосов: {total_votes}
     """
-    # Создаем кнопки с обновленными результатами
+    # обновленные результаты (кнопка) 
     markup = telebot.types.InlineKeyboardMarkup()
     btn1 = telebot.types.InlineKeyboardButton(
         f'✅ Отлично ({results["5"]})',
@@ -195,7 +195,7 @@ def update_poll_results(message, poll_id):
         f'👎 Плохо ({results["2"]})',
         callback_data=f'poll_{poll_id}_2'
     )
-    # Добавляем кнопку "Проголосовать снова" и "Назад"
+    # кнопки "Проголосовать снова" и "Назад"
     btn_vote_again = telebot.types.InlineKeyboardButton('🔄 Проголосовать снова', callback_data=f'vote_again_{poll_id}')
     btn_back = telebot.types.InlineKeyboardButton('⬅️ Назад к опросам', callback_data='back_to_polls')
     markup.add(btn1, btn2, btn3, btn4)
@@ -224,7 +224,7 @@ def show_all_poll_results(chat_id):
             results[vote] += 1
         total_votes = len(votes)
         if total_votes > 0:
-            # Вычисляем средний балл
+            #  средний балл
             avg_score = (results['5'] * 5 + results['4'] * 4 + results['3'] * 3 + results['2'] * 2) / total_votes
             results_text += f"{poll_name}:\n"
             results_text += f"✅ {results['5']} 👍 {results['4']} 😐 {results['3']} 👎 {results['2']}\n"
@@ -232,7 +232,7 @@ def show_all_poll_results(chat_id):
             results_text += f"👥 Всего голосов: {total_votes}\n\n"
         else:
             results_text += f"{poll_name}: пока нет голосов\n\n"
-    # Добавляем кнопки навигации
+    # кнопка навигации
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn_vote = telebot.types.KeyboardButton('Питьевой фонтан')
     btn_back = telebot.types.KeyboardButton('⬅️ Назад к опросам')
@@ -251,14 +251,14 @@ def handle_poll_vote(call):
     poll_id = poll_type
     if poll_id not in poll_results:
         poll_results[poll_id] = {}
-    # Проверяем, голосовал ли уже пользователь
+    # Проверка , голосовал ли уже пользователь
     if user_id in poll_results[poll_id]:
         bot.answer_callback_query(call.id, "Вы уже голосовали в этом опросе!", show_alert=True)
         return
     # Сохраняем результат
     poll_results[poll_id][user_id] = vote_value
 
-    # Обновляем сообщение с результатами
+    # Обновление сообщения с результатами
     update_poll_results(call.message, poll_id)
 
     bot.answer_callback_query(call.id, "Спасибо за ваш голос!")
@@ -266,11 +266,11 @@ def handle_poll_vote(call):
 def handle_vote_again(call):
     """Обрабатывает кнопку 'Проголосовать снова'"""
     poll_id = call.data.split('_')[2]  # Получаем poll_id
-    # Удаляем голос пользователя, чтобы он мог проголосовать снова
+    # Удаление голоса пользователя, чтобы он мог проголосовать снова
     user_id = call.from_user.id
     if poll_id in poll_results and user_id in poll_results[poll_id]:
         del poll_results[poll_id][user_id]
-    # Запускаем опрос заново
+    # Запуск опроса заново
     if poll_id == 'canteen':
         start_canteen_poll(call.message.chat.id)
     bot.answer_callback_query(call.id, "Можете проголосовать снова!")
@@ -360,4 +360,5 @@ def handle_authorized_messages(message):
 # Запуск бота
 if __name__ == "__main__":
     print("Бот запущен...")
+
     bot.polling(none_stop=True)
