@@ -2,14 +2,14 @@ import telebot
 import hashlib
 from datetime import datetime
 
-# Токен бота
+# токен бота
 bot = telebot.TeleBot('8310431204:AAEXfSgJZLlp-DABnDeZ7VfCWHamFBgSBoc')
 
-# Функция для хэши пароля
+# функция для хэши пароля
 def hash_pass(pw: str) -> str:
     return hashlib.sha256(pw.encode()).hexdigest()
 
-# имя.фамилия.хэш пароля
+# имя фамилия хэш пароля
 AUTHORIZED_USERS = {
     ("Беляев", "Илья"): hash_pass("qwe1"),
     ("Гаврилов", "Дима"): hash_pass("qwe2"),
@@ -92,7 +92,8 @@ def handle_login(message):
     else:
         bot.send_message(chat_id, "❌ Пользователь не найден в списке учеников.\n\nИспользуйте /help для справки")
 
-# Запуск
+# запуск
 if __name__ == "__main__":
     print("Бот запущен...")
+
     bot.polling(none_stop=True)
