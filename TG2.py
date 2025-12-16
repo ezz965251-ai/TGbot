@@ -12,7 +12,7 @@ def hash_pass(pw: str) -> str:
 # имя фамилия хэш пароля
 AUTHORIZED_USERS = {
     ("Беляев", "Илья"): hash_pass("qwe1"),
-    ("Гаврилов", "Дима"): hash_pass("qwe2"),
+    ("Гаврилов", "Дима"): hash_pass("sey2"),
     ("Гаврилов", "Егор"): hash_pass("xim9"),
     ("Канчуга", "Артем"): hash_pass("glx6"),
     ("Графов", "Леша"): hash_pass("grF4"),
@@ -97,3 +97,4 @@ if __name__ == "__main__":
     print("Бот запущен...")
 
     bot.polling(none_stop=True)
+
